@@ -89,11 +89,13 @@ class AssembleVintfImpl : public AssembleVintf {
     }
 
     template <typename T>
-    bool getFlag(const std::string& key, T* value) const {
+    bool getFlag(const std::string& key, T* value, bool log = true) const {
         std::string envValue = getEnv(key);
         if (envValue.empty()) {
-            std::cerr << "Warning: " << key << " is missing, defaulted to " << (*value) << "."
-                      << std::endl;
+            if (log) {
+                std::cerr << "Warning: " << key << " is missing, defaulted to " << (*value) << "."
+                          << std::endl;
+            }
             return true;
         }
 
@@ -329,7 +331,8 @@ class AssembleVintfImpl : public AssembleVintf {
         }
 
         if (halManifest->mType == SchemaType::DEVICE) {
-            if (!getFlag("BOARD_SEPOLICY_VERS", &halManifest->device.mSepolicyVersion)) {
+            if (!getFlag("BOARD_SEPOLICY_VERS", &halManifest->device.mSepolicyVersion,
+                    true /* log */)) {
                 return false;
             }
             if (!setDeviceFcmVersion(halManifest)) {
@@ -530,6 +533,9 @@ class AssembleVintfImpl : public AssembleVintf {
                            deviceLevel == Level::UNSPECIFIED /* log */);
             getFlagIfUnset("FRAMEWORK_VBMETA_VERSION", &matrix->framework.mAvbMetaVersion,
                            deviceLevel == Level::UNSPECIFIED /* log */);
+            // Hard-override existing AVB version
+            getFlag("FRAMEWORK_VBMETA_VERSION_OVERRIDE", &matrix->framework.mAvbMetaVersion,
+                    false /* log */);
 
             out() << "<!--" << std::endl;
             out() << "    Input:" << std::endl;
