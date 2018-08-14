@@ -47,11 +47,7 @@ class RecoveryPartitionMounter : public PartitionMounter {
         if (fstab == NULL) {
             return UNKNOWN_ERROR;
         }
-        if (getPropertyFetcher().getBoolProperty("ro.build.system_root_image", false)) {
-            return mountAt(fstab, "/", "/system_root");
-        } else {
-            return mountAt(fstab, "/system", "/system");
-        }
+        return mountAt(fstab, "/", "/system_root");
     }
 
     status_t mountVendor() const override {
@@ -63,11 +59,7 @@ class RecoveryPartitionMounter : public PartitionMounter {
     }
 
     status_t umountSystem() const override {
-        if (getPropertyFetcher().getBoolProperty("ro.build.system_root_image", false)) {
-            return umount("/system_root");
-        } else {
-            return umount("/system");
-        }
+        return umount("/system_root");
     }
 
     status_t umountVendor() const override {
